@@ -1,0 +1,68 @@
+import sqlite3
+
+# Criar o banco de dados e a tabela
+conn = sqlite3.connect("tasks.db")
+cursor = conn.cursor()
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY,
+        description TEXT,
+        completed INTEGER
+    )
+""")
+
+conn.commit()
+
+# Create (Inserir uma Tarefa)
+def create_task(description):
+    cursor.execute("INSERT INTO tasks (description, completed) VALUES (?, 0)", (description,))
+    conn.commit()
+
+# Read (Listar Todas as Tarefas)
+def list_tasks():
+    cursor.execute("SELECT id, description, completed FROM tasks")
+    tasks = cursor.fetchall()
+    for task in tasks:
+        print(f"ID: {task[0]}, Description: {task[1]}, Completed: {'Yes' if task[2] else 'No'}")
+
+# Update (Marcar uma Tarefa como Concluída)
+def mark_completed(task_id):
+    cursor.execute("UPDATE tasks SET completed = 1 WHERE id = ?", (task_id,))
+    conn.commit()
+
+# Delete (Deletar uma Tarefa)
+def delete_task(task_id):
+    cursor.execute("DELETE FROM tasks WHERE id = ?", (task_id,))
+    conn.commit()
+
+# Menu de Opções
+def main():
+    while True:
+        print("1. Criar Tarefa")
+        print("2. Listar Tarefas")
+        print("3. Marcar Tarefa como Concluída")
+        print("4. Deletar Tarefa")
+        print("5. Sair")
+
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == "1":
+            description = input("Digite a descrição da tarefa: ")
+            create_task(description)
+        elif opcao == "2":
+            list_tasks()
+        elif opcao == "3":
+            task_id = int(input("Digite o ID da tarefa: "))
+            mark_completed(task_id)
+        elif opcao == "4":
+            task_id = int(input("Digite o ID da tarefa: "))
+            delete_task(task_id)
+        elif opcao == "5":
+            conn.close()
+            break
+        else:
+            print("Opção inválida")
+
+if __name__ == "__main__":
+    main()
